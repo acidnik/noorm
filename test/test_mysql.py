@@ -1,5 +1,5 @@
 
-from noorm.adapter.mysql import AdapterMySQL as m
+# from noorm.adapter.mysql import AdapterMySQL as m
 import noorm
 import os
 
@@ -12,17 +12,11 @@ def with_dsn(f):
         return f(*args, **kwargs)
     return inner
 
-def test_mysql_parse_dsn():
-    dsn = 'mysql://user:pass@localhost:3306/test'
-    params = m.parse_dsn(dsn)
-    assert params['host'] == 'localhost'
-    # TODO
-
 
 @with_dsn
 def test_mysql():
     db = noorm.mysql(dsn=MYSQL_DSN)
-    db.execute("""
+    db.execute_sql("""
         drop table if exists test_noorm;
         create table test_noorm (
             id serial,
@@ -31,5 +25,9 @@ def test_mysql():
             price float,
             unique (name)
         )
-    """)
-    db.execute('select * from test_noorm', where={'id': 1})
+    """, commit=False)
+    db.execute_sql('insert into test_noorm (name, price) values (%s, %s)', ['test', 12.34])
+    row = db.fetchrow('select id, name, price from test_noorm', where={'id': 1})
+    assert dict(row) == {'id': 1, 'name': 'test', 'price': 12.34}
+    rows = db.fetch('select id, name, price from test_noorm', where={'id': 1})
+    assert rows == [{'id': 1, 'name': 'test', 'price': 12.34}]
