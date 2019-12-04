@@ -1,6 +1,12 @@
 from urllib.parse import urlparse
 from ..query import QueryBuilder
 
+import logging
+
+
+logger = logging.getLogger('noorm')
+
+
 class NoormDB:
     """
         base db class
@@ -44,7 +50,7 @@ class NoormDB:
         if binds is None:
             binds = []
         cursor = self.cursor()
-        # print(f"{sql} % {binds}")
+        logger.debug(f"{sql} % {binds}")
         res = cursor.execute(sql, binds)
         if fetch:
             res = cursor.fetchall()
@@ -54,7 +60,6 @@ class NoormDB:
 
     def execute(self, *args, **kwargs):
         q = self.query_builder().build(*args, **kwargs)
-        # print(q.sql, q.binds)
         return self.execute_sql(q.sql, q.binds)
 
     def fetch(self, *args, **kwargs):

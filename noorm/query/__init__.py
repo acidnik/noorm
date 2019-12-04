@@ -32,14 +32,15 @@ operators = {
 }
 
 class QueryBuilder:
-    def __init__(self, placeholder=1, binds=None, custom_operators=None, paramstyle=None):
+    def __init__(self, placeholder=1, binds=None):
         self.sql = None
         self.binds = binds or []
-        self.placeholder = placeholder
         self.operators = operators
-        if custom_operators:
-            self.operators.update(custom_operators)
-        self.paramstyle = paramstyle or (lambda i: f'${i}')
+        self.placeholder = placeholder
+
+    @staticmethod
+    def paramstyle(i):
+        return f'${i}'
 
     def __str__(self):
         return f"{self.sql} % {self.binds}"

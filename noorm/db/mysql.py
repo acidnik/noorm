@@ -5,6 +5,10 @@ from ..query import QueryBuilder
 
 
 class QueryBuilderMySQL(QueryBuilder):
+    @staticmethod
+    def paramstyle(_i):
+        return f'%s'
+
     def insert(self, table, rows, update=None, delayed=False, ignore=False):
         sql = ['INSERT']
         if delayed:
@@ -42,10 +46,7 @@ class NoormDBMySQL(NoormDB):
         return MySQLdb.connect(**kwargs)
 
     def query_builder(self):
-        return QueryBuilderMySQL(
-            # TODO move to class members
-            paramstyle=lambda _: '%s',
-        )
+        return QueryBuilderMySQL()
 
     def insert(self, table, rows, **kwargs):
         if not isinstance(rows, list):
