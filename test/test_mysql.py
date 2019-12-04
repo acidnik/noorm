@@ -65,4 +65,14 @@ def test_mysql():
     # print(db.fetchcol('select price from test_noorm order by 1'))
     res = db.delete('test_noorm', where={'price': {'gt': 22}})
     assert res == 2
+    
+    db.execute('truncate table test_noorm')
+    tid = db.insert('test_noorm', {'name': 'foo', 'price': 22})
+    
+    row = db.fetchrow('select name, price from test_noorm', where={'id': tid})
+    db.update('test_noorm', {'name': 'new name', 'price': {'val': 'price + 1', 'raw': True}}, where={'id': tid})
+    row2 = db.fetchrow('select name, price from test_noorm', where={'id': tid})
+    assert row['price'] == row2['price'] - 1
+    assert row2['name'] == 'new name'
+
 
