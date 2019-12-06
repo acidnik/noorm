@@ -1,4 +1,4 @@
-Synopsys
+Synopsis
 ========
 ```
 db = noorm.mysql.connect('mysql://user:pass@localhost/test')
