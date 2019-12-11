@@ -1,8 +1,9 @@
-
 import pytest
 import noorm
 import os
 import MySQLdb
+
+from datetime import datetime
 
 MYSQL_DSN = os.environ.get('NOORM_TEST_MYSQL_DSN')
 
@@ -75,4 +76,6 @@ def test_mysql():
     assert row['price'] == row2['price'] - 1
     assert row2['name'] == 'new name'
 
+    db.insert('test_noorm', {'name': 'test3', 'dt': {'val': 'now()', 'raw': True}})
+    db.insert('test_noorm', [{'name': 'test4', 'dt': {'val': 'now()', 'raw': True}}, {'name': 'test5', 'dt': datetime.now()}])
 

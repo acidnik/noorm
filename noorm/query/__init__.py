@@ -67,7 +67,7 @@ class QueryBuilder:
             result.append(self._build_cond(k, v))
         return (' ' + logic + ' ').join(result)
 
-    def _build_cond(self, field, cond):
+    def _build_cond(self, field, cond, val_only=False):
         if field == '__or__':
             return '(' + self.condition(cond, logic='OR') + ')'
         if field == '__text__':
@@ -84,6 +84,8 @@ class QueryBuilder:
             result = f"{field} = {param}"
             self.binds.append(cond)
             self.placeholder += 1
+            if val_only:
+                return cond
             return result
         
         negate = cond.pop('not', False)
@@ -108,9 +110,12 @@ class QueryBuilder:
             if not cond_op:
                 raise ValueError(f"operator missing in condition {cond}")
             result = ' '.join([field, cond_op, cond_val])
+        if val_only:
+            return cond_val
         if negate:
             return f"NOT ({result})"
         return result
+
 
     @staticmethod
     def _coerce(val, t):
@@ -120,6 +125,23 @@ class QueryBuilder:
 
     def insert(self, table, rows, **kwargs):
         raise NotImplementedError
+
+    def insert_values(self, keys, rows):
+        binds = []
+        sql = []
+        for row in rows:
+            # not using row.items() to preserve same order across rows
+            sql_row = []
+            for k in keys:
+                v = row[k]
+                if isinstance(v, dict) and v.get('raw'):
+                    val = v['val']
+                    sql_row.append(val)
+                else:
+                    sql_row.append('%s')
+                    binds.append(v)
+            sql.append('(' + ', '.join(sql_row) + ')')
+        return ', '.join(sql), binds
 
     def delete(self, table, *, where):
         sql = ['DELETE FROM', table, 'WHERE']
@@ -138,10 +160,7 @@ class QueryBuilder:
         sql.append(', '.join(set_sql))
         sql.append('WHERE')
         sql.append(self.condition(where))
-        print(sql, self.binds)
         return ' '.join(sql), self.binds
-
-
 
 
 

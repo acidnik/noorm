@@ -1,6 +1,9 @@
 from noorm.db.mysql import NoormDBMySQL 
+from noorm.db.clickhouse import NoormDBClickhouse
 
 mysql = NoormDBMySQL
+clh = NoormDBClickhouse
+
 
 """
 Query builder

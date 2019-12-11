@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+    test:
+        build:
+            context: .
+        volumes: 
+            - ".:/app"
+        environment:
+            NOORM_TEST_MYSQL_DSN: mysql://root:pass@mysql/test
+            NOORM_TEST_CLH_DSN: tcp://clh/default
+        depends_on:
+            - clh
+            - mysql
+
+    clh:
+        image: yandex/clickhouse-server
+
+    mysql:
+        image: mysql
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            MYSQL_ROOT_PASSWORD: pass
+            MYSQL_DATABASE: test

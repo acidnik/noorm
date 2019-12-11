@@ -20,12 +20,8 @@ class QueryBuilderMySQL(QueryBuilder):
         sql.append('(' + ', '.join(keys) + ')')
         sql.append('VALUES')
         
-        binds = []
-        ph = '(' + ','.join('%s' for _ in keys) + ')'
-        sql.append(', '.join(ph for _ in rows))
-        for row in rows:
-            for k in keys:
-                binds.append(row[k])
+        sql_ph, binds = self.insert_values(keys, rows)
+        sql.append(sql_ph)
         if update is not None:
             update_keys = None
             if isinstance(update, str):
@@ -38,6 +34,7 @@ class QueryBuilderMySQL(QueryBuilder):
                 raise ValueError("invalid update")
             sql.append('ON DUPLICATE KEY UPDATE')
             sql.append(', '.join( f"{k} = values({k})" for k in update_keys))
+        # print(rows, sql, binds)
         return ' '.join(sql), binds
 
 
