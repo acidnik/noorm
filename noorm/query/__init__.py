@@ -12,6 +12,17 @@ def _in(val, start, raw, paramstyle):
     result = '(' + values + ')'
     return binds, start, 'IN', result
 
+def _between(val, start, raw, paramstyle):
+    if raw:
+        v1, v2 = val
+        binds = []
+    else:
+        binds = val
+        v1, v2 = paramstyle(start), paramstyle(start+1)
+        start += 2
+    result = v1 + ' AND ' + v2
+    return binds, start, 'BETWEEN', result
+
 def _op(op):
     def inner(val, start, raw, paramstyle):
         if raw:
@@ -29,6 +40,7 @@ operators = {
     'le': _op('<='),
     'like': _op('LIKE'),
     'in': _in,
+    'between': _between,
 }
 
 class QueryBuilder:

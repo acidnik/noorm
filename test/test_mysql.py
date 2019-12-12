@@ -79,3 +79,11 @@ def test_mysql():
     db.insert('test_noorm', {'name': 'test3', 'dt': {'val': 'now()', 'raw': True}})
     db.insert('test_noorm', [{'name': 'test4', 'dt': {'val': 'now()', 'raw': True}}, {'name': 'test5', 'dt': datetime.now()}])
 
+    db.execute('truncate table test_noorm')
+    tid = db.insert('test_noorm', {'name': 'foo', 'price': 22})
+
+    c = db.fetchval('select count(*) from test_noorm', where={'price': {'between': [20, 23]}})
+    assert c == 1
+    c = db.fetchval('select count(*) from test_noorm', where={'price': {'between': ['price-1', 'price+1'], 'raw': True}})
+    assert c == 1
+
